@@ -28,10 +28,11 @@ public class ConstructorTest extends BaseTest {
     public void testTest() throws Exception {
         driver.get(MainPage.URL);
         MainPage mainPage = new MainPage(driver);
-        if (!tabName.equals("Булки")) {
-            // Раздел Булки выбран по умолчанию, поэтому не кликаем
-            mainPage.clickElement(tabName);
+        if (tabName.equals("Булки")) {
+            // Раздел Булки выбран по умолчанию, поэтому для проверки перехода сначала кликаем на другой раздел, а потом возвращаемся
+            mainPage.clickElement("Соусы");
         }
+        mainPage.clickElement(tabName);
         new WebDriverWait(driver, 3)
                 .until(ExpectedConditions.attributeContains(mainPage.findElement(tabName), "class", "tab_type_current"));
     }

@@ -1,5 +1,8 @@
+import helpers.user.DeleteUser;
+import helpers.user.User;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit4.DisplayName;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import pageobject.SignInPage;
@@ -47,5 +50,16 @@ public class RegisterTest extends BaseTest {
         userEmail = faker.pokemon().name() + faker.number().digits(4) + "@mail.ru";
         userPassword = faker.number().digits(6);
         userName = faker.name().firstName();
+    }
+
+    @After
+    public void deleteUser() {
+        User user = new User(userEmail, userPassword, userName);
+        if (user.hasUser()) {
+            DeleteUser.deleteUser(user.getEmail(), user.getPassword(), user.getName(), user.getTokenByLoginApi());
+        } else {
+            System.out.println("Пользователь в рамках теста не был создан. Удаление не требуется");
+        }
+
     }
 }

@@ -12,7 +12,9 @@ public class User {
     private String name;
     private String token;
     private Faker faker = new Faker();
-    public static final String ENDPOINT = "https://stellarburgers.nomoreparties.site/api/auth/register";
+    private Response response;
+    public static final String REGISTER_ENDPOINT = "https://stellarburgers.nomoreparties.site/api/auth/register";
+    public static final String LOGIN_ENDPOINT = "https://stellarburgers.nomoreparties.site/api/auth/login";
 
     public User() {
         email = faker.pokemon().name() + faker.number().digits(5) + "@mail.ru";
@@ -20,19 +22,54 @@ public class User {
         name = faker.name().firstName();
     }
 
+    public User(String email, String password, String name) {
+        this.email = email;
+        this.password = password;
+        this.name = name;
+    }
+
     public void createUser() {
         UserRequest user = new UserRequest(email, password, name);
-        Response response = given()
+        response = given()
                 .log().all()
                 .contentType(ContentType.JSON)
                 .body(user)
                 .when()
-                .post(ENDPOINT);
+                .post(REGISTER_ENDPOINT);
 
         response.then()
                 .statusCode(200);
 
         token = response.as(UserResponse.class).getAccessToken();
+    }
+
+    public String getTokenByLoginApi() {
+        UserRequest user = new UserRequest(email, password, name);
+        response = sendRequestLogin();
+        response.then()
+                .statusCode(200);
+
+        token = response.as(UserResponse.class).getAccessToken();
+        return getToken();
+    }
+
+    public boolean hasUser() {
+        if (sendRequestLogin().getStatusCode() == 200) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Response sendRequestLogin() {
+        UserRequest user = new UserRequest(email, password, name);
+        return given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(user)
+                .when()
+                .post(LOGIN_ENDPOINT);
+
     }
 
     public String getEmail() {
